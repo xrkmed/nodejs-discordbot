@@ -1,14 +1,23 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const config = require('./config.json');
-const { Client, Collection, GatewayIntentBits, Events, REST, Routes } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.DirectMessages] });
+const { Client, Collection, GatewayIntentBits, Events, REST, Routes, ActivityType } = require('discord.js');
+const client = new Client({ intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds] });
 const TOKEN = config.token;
 const commands = [];
 client.commands = new Collection();
 
 client.on(Events.ClientReady, () => {
     console.log(`Logged in as ${client.user.tag}!`);
+    var status = setInterval(function () {
+      client.user.setPresence({
+        activities: [{ name: `Acesse https://www.xrkmed.com`, type: ActivityType.Playing }],
+        status: 'dnd',
+      });
+
+    }, 10000);
+    status.refresh();
+
 });
 
 const commandFiles = fs.readdirSync(path.join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
@@ -29,7 +38,6 @@ const rest = new REST({ version: '9' }).setToken(TOKEN);
 	try {
 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
 			Routes.applicationCommands(config.appId),
 			{ body: commands },
@@ -37,7 +45,6 @@ const rest = new REST({ version: '9' }).setToken(TOKEN);
 
 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
 	} catch (error) {
-		// And of course, make sure you catch and log any errors!
 		console.error(error);
 	}
 })();
