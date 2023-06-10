@@ -1,8 +1,8 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 const config = require('./config.json');
 const { Client, Collection, GatewayIntentBits, Events, REST, Routes, ActivityType } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
 const TOKEN = config.token;
 const commands = [];
 client.commands = new Collection();
@@ -64,6 +64,7 @@ client.on(Events.InteractionCreate, async interaction => {
         await command.execute(interaction);
     }catch(error){
       console.error(error);
+      
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
       } else {
