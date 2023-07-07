@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const config = require('./config.json');
-const { Client, Collection, GatewayIntentBits, Events, REST, Routes, ActivityType } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
+const { Client, Collection, GatewayIntentBits, Events, REST, Routes, ActivityType, Partials } = require('discord.js');
+const client = new Client({ intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessageReactions], partials: [Partials.Message, Partials.Channel, Partials.Reaction] });
+const { save } = require("./pokemons.js");
 const TOKEN = config.token;
 const commands = [];
 client.commands = new Collection();
@@ -17,6 +18,11 @@ client.on(Events.ClientReady, () => {
 
     }, 10000);
     status.refresh();
+
+    var saveTimeout = setInterval(function () {
+      save();
+    }, 60000);
+    saveTimeout.refresh();
 
 });
 
